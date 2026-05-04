@@ -11,10 +11,13 @@ KiranaLens turns a smartphone into a credit underwriting tool. Upload 3–5 phot
 
 ## 🚀 Live Demo
 
-```
-Landing page → index.html
-Assess a Store → assess.html (connects to backend)
-```
+| | Link |
+|---|---|
+| 🌐 **Landing Page** | https://kiranalens-tenzorx2026-final-production.up.railway.app |
+| 🔬 **Assessment Tool** | https://kiranalens-tenzorx2026-final-production.up.railway.app/assess.html |
+| 🩺 **API Health** | https://kiranalens-tenzorx2026-final-production.up.railway.app/api/health |
+
+> No setup needed. Opens instantly in any browser.
 
 ---
 
