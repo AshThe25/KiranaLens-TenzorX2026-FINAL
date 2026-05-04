@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KiranaLens | Precision Intelligence for Retail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode:"class",
+    theme:{extend:{
+      colors:{
+        "secondary":"#FFBF00","on-secondary-container":"#4f3100",
+        "error-container":"#93000a","on-error-container":"#ffdad6","error":"#ffb4ab",
+        "surface-container-lowest":"#0e0e0e","surface-container-low":"#1c1b1b",
+        "surface-container":"#201f1f","surface-container-high":"#2a2a2a",
+        "background":"#000000","surface":"#000000","on-surface":"#e5e2e1",
+        "on-surface-variant":"#c4c7c8","outline-variant":"#444748"
+      },
+      fontFamily:{
+        "headline-lg":["Inter"],"display-hero":["Inter"],
+        "body-md":["Inter"],"body-lg":["Inter"],"headline-md":["Inter"],
+        "data-mono":["JetBrains Mono"],"label-caps":["JetBrains Mono"]
+      },
+      fontSize:{
+        "headline-lg":["64px",{lineHeight:"110%",letterSpacing:"-0.03em",fontWeight:"900"}],
+        "display-hero":["clamp(72px,9vw,128px)",{lineHeight:"100%",letterSpacing:"-0.04em",fontWeight:"900"}],
+        "body-md":["15px",{lineHeight:"160%",letterSpacing:"0",fontWeight:"400"}],
+        "body-lg":["18px",{lineHeight:"160%",letterSpacing:"0",fontWeight:"400"}],
+        "headline-md":["32px",{lineHeight:"120%",letterSpacing:"-0.01em",fontWeight:"900"}],
+        "data-mono":["13px",{lineHeight:"140%",letterSpacing:"0.05em",fontWeight:"500"}],
+        "label-caps":["11px",{lineHeight:"100%",letterSpacing:"0.15em",fontWeight:"700"}]
+      }
+    }}
+  }
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: auto; } /* lenis handles this */
+  body { background:#000; color:#fff; overflow-x:hidden; cursor:none; }
+
+  /* ── Custom cursor ── */
+  #cursor-dot {
+    position:fixed; top:0; left:0; width:10px; height:10px;
+    background:#FFBF00; border-radius:50%; pointer-events:none;
+    z-index:9999; transform:translate(-50%,-50%);
+    transition: width .2s, height .2s, background .2s;
+    mix-blend-mode: difference;
+  }
+  #cursor-glow {
+    position:fixed; top:0; left:0; width:400px; height:400px;
+    background:radial-gradient(circle, rgba(255,191,0,0.07) 0%, transparent 70%);
+    border-radius:50%; pointer-events:none; z-index:9998;
+    transform:translate(-50%,-50%);
+    transition: transform 0.15s ease-out;
+  }
+  body:hover #cursor-dot { opacity:1; }
+
+  /* ── Glass ── */
+  .glass-card {
+    background:rgba(255,255,255,0.04);
+    backdrop-filter:blur(30px);
+    border:1px solid rgba(255,255,255,0.08);
+  }
+  .glass-card:hover { border-color:rgba(255,191,0,0.2); }
+
+  /* ── Ambient glows ── */
+  .ambient-amber {
+    background:radial-gradient(circle, rgba(255,191,0,0.08) 0%, transparent 70%);
+  }
+  .ambient-blue {
+    background:radial-gradient(circle, rgba(96,165,250,0.06) 0%, transparent 70%);
+  }
+
+  /* ── Nav ── */
+  header {
+    background:rgba(0,0,0,0.6);
+    backdrop-filter:blur(30px);
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+
+  /* ── Section spacing ── */
+  .section-pad { padding-top:160px; padding-bottom:160px; }
+
+  /* ── Hero word reveal ── */
+  .hero-word { display:inline-block; opacity:0; transform:translateY(40px) scale(0.97); filter:blur(8px); }
+
+  /* ── Scroll-reveal base ── */
+  .reveal { opacity:0; transform:translateY(40px); }
+
+  /* ── Progress bars ── */
+  .bar-fill { width:0%; transition:width 1.4s cubic-bezier(0.16,1,0.3,1); }
+
+  /* ── Count-up ── */
+  .count-up { font-variant-numeric: tabular-nums; }
+
+  /* ── Stat bar ── */
+  .stat-item { border-right:1px solid rgba(255,255,255,0.07); }
+  .stat-item:last-child { border-right:none; }
+
+  /* ── Output card glow ── */
+  .output-card {
+    box-shadow: 0 40px 120px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.06),
+                0 0 60px rgba(255,191,0,0.06);
+  }
+
+  /* ── Fraud card ── */
+  .fraud-card { border-left:3px solid rgba(239,68,68,0.5); }
+
+  /* ── Architecture connector ── */
+  .arch-connector {
+    height:48px; width:1px;
+    background:linear-gradient(to bottom, #FFBF00, #3b82f6);
+    margin:0 auto;
+    position:relative;
+  }
+  .arch-connector::after {
+    content:''; position:absolute; bottom:-4px; left:-3px;
+    width:7px; height:7px; border-radius:50%; background:#3b82f6;
+  }
+
+  /* ── Scan line (hero image effect) ── */
+  @keyframes scan { 0%{top:-10%} 100%{top:110%} }
+  .scan-line {
+    position:absolute; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,transparent,rgba(255,191,0,0.8),transparent);
+    animation:scan 2s linear infinite;
+    pointer-events:none;
+  }
+
+  /* ── Pulse ring ── */
+  @keyframes ring {
+    0%{transform:scale(1);opacity:0.6}
+    100%{transform:scale(2.5);opacity:0}
+  }
+  .pulse-ring {
+    position:absolute; inset:0; border-radius:50%;
+    border:1px solid rgba(255,191,0,0.4);
+    animation:ring 2.5s ease-out infinite;
+  }
+  .pulse-ring:nth-child(2) { animation-delay:.8s; }
+  .pulse-ring:nth-child(3) { animation-delay:1.6s; }
+
+  /* ── Rotating radar sweep ── */
+  @keyframes radar-sweep { to { transform: rotate(360deg); } }
+  .radar-sweep { transform-origin: 200px 200px; animation: radar-sweep 8s linear infinite; }
+
+  /* ── Floating dots ── */
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  .float-1 { animation: float 3s ease-in-out infinite; }
+  .float-2 { animation: float 3.5s ease-in-out .4s infinite; }
+  .float-3 { animation: float 4s ease-in-out .8s infinite; }
+
+  /* ── Material icons ── */
+  .material-symbols-outlined {
+    font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;
+  }
+
+  /* ── CTA primary ── */
+  .btn-primary {
+    background:#FFBF00; color:#000; font-weight:900;
+    transition:transform .2s, box-shadow .2s;
+  }
+  .btn-primary:hover {
+    transform:scale(1.04);
+    box-shadow:0 0 50px rgba(255,191,0,0.4);
+  }
+  .btn-secondary {
+    border:1px solid rgba(255,255,255,0.18); color:#fff; font-weight:700;
+    transition:border-color .2s, background .2s;
+  }
+  .btn-secondary:hover { border-color:rgba(255,255,255,0.4); background:rgba(255,255,255,0.05); }
+
+  /* ── Scroll hint initial state (GSAP animates in) ── */
+  #scroll-hint { opacity: 0; }
+
+  /* ── Noise texture overlay ── */
+  body::before {
+    content:'';
+    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.025;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+</style>
+<!-- Fallback: if JS/GSAP fails, make animated elements visible -->
+<noscript>
+<style>
+  #hero-pill, #hero-sub, #hero-cta, #hero-footnote, #scroll-hint,
+  .hero-word, .reveal { opacity: 1 !important; transform: none !important; filter: none !important; }
+</style>
+</noscript>
+</head>
+<body class="font-body-md selection:bg-secondary selection:text-black">
+
+<!-- Custom cursor -->
+<div id="cursor-dot"></div>
+<div id="cursor-glow"></div>
+
+<!-- ═══════════════════════════════════════
+     NAV
+════════════════════════════════════════ -->
+<header class="fixed top-0 w-full z-50" id="navbar">
+  <div class="max-w-[1200px] mx-auto flex justify-between items-center px-8 h-20">
+    <div class="text-xl font-black tracking-tighter text-white">
+      Kirana<span class="text-[#FFBF00]">Lens</span>
+    </div>
+    <nav class="hidden md:flex gap-10">
+      <a class="font-label-caps text-white/40 hover:text-white transition-colors duration-300" href="#problem">Problem</a>
+      <a class="font-label-caps text-white/40 hover:text-white transition-colors duration-300" href="#solution">Solution</a>
+      <a class="font-label-caps text-white/40 hover:text-white transition-colors duration-300" href="#signals">Signals</a>
+      <a class="font-label-caps text-white/40 hover:text-white transition-colors duration-300" href="#impact">Impact</a>
+    </nav>
+    <a href="/assess.html" class="btn-primary px-6 py-2.5 rounded-lg text-[12px] tracking-widest uppercase">
+      Assess a Store →
+    </a>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════
+     SECTION 1 — HERO
+════════════════════════════════════════ -->
+<section class="relative min-h-screen flex flex-col items-center justify-center pt-24 overflow-hidden">
+  <!-- Ambient glow -->
+  <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+    <div class="w-[700px] h-[700px] ambient-amber rounded-full blur-[140px]" id="hero-glow"></div>
+  </div>
+
+  <!-- Grid overlay -->
+  <div class="absolute inset-0 pointer-events-none" style="background-image:linear-gradient(rgba(255,191,0,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,191,0,0.03) 1px,transparent 1px);background-size:80px 80px;"></div>
+
+  <div class="relative z-10 max-w-[1100px] px-8 text-center">
+    <!-- Pill label -->
+    <div id="hero-pill" class="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full mb-14 opacity-0">
+      <span class="w-2 h-2 rounded-full bg-[#FFBF00] animate-pulse inline-block"></span>
+      <span class="font-label-caps text-[#FFBF00]">TenzorX 2026 · Problem 4C · Poonawalla Fincorp</span>
+    </div>
+
+    <!-- Hero headline — words split for animation -->
+    <h1 class="font-display-hero text-white mb-8 leading-none" id="hero-headline" aria-label="See the Store. Know the Cash Flow.">
+      <span class="block overflow-hidden"><span class="hero-word">See</span> <span class="hero-word">the</span> <span class="hero-word text-[#FFBF00]">Store.</span></span>
+      <span class="block overflow-hidden mt-1"><span class="hero-word">Know</span> <span class="hero-word">the</span> <span class="hero-word text-[#FFBF00]">Cash</span> <span class="hero-word text-[#FFBF00]">Flow.</span></span>
+    </h1>
+
+    <p class="font-body-lg text-white/50 max-w-xl mx-auto mb-12 reveal" id="hero-sub">
+      Remote kirana underwriting through real-time computer vision — analyzing shelf density, SKU diversity, and inventory velocity from a single smartphone video.
+    </p>
+
+    <div class="flex gap-5 justify-center reveal" id="hero-cta">
+      <a href="/assess.html" class="btn-primary px-10 py-4 rounded-xl text-base">Assess a Store</a>
+      <a href="https://github.com/AshThe25/KiranaLens-TenzorX2026-FINAL" target="_blank" class="btn-secondary px-10 py-4 rounded-xl text-base">View on GitHub</a>
+    </div>
+
+    <p class="font-label-caps text-white/20 mt-8 reveal" id="hero-footnote">
+      No field visits &nbsp;·&nbsp; No documents &nbsp;·&nbsp; 60-second decisions
+    </p>
+  </div>
+
+  <!-- Scroll hint -->
+  <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/20" id="scroll-hint">
+    <span class="font-label-caps text-[10px]">Scroll to discover</span>
+    <span class="material-symbols-outlined animate-bounce text-base">expand_more</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 2 — STAT BAR
+════════════════════════════════════════ -->
+<section class="border-y border-white/5 bg-gradient-to-r from-transparent via-white/[0.015] to-transparent">
+  <div class="max-w-[1200px] mx-auto px-8 py-14 grid grid-cols-2 md:grid-cols-4">
+    <div class="stat-item px-8 py-4 text-center reveal">
+      <div class="font-label-caps text-[#FFBF00] mb-3">NETWORK REACH</div>
+      <div class="font-headline-md text-white count-up" data-target="13" data-suffix="M+">0</div>
+      <div class="font-label-caps text-white/30 mt-1">Kirana Outlets</div>
+    </div>
+    <div class="stat-item px-8 py-4 text-center reveal">
+      <div class="font-label-caps text-[#FFBF00] mb-3">MARKET SIZE</div>
+      <div class="font-headline-md text-white">₹5.5L Cr</div>
+      <div class="font-label-caps text-white/30 mt-1">Annual Turnover</div>
+    </div>
+    <div class="stat-item px-8 py-4 text-center reveal">
+      <div class="font-label-caps text-[#FFBF00] mb-3">PROCESSING SPEED</div>
+      <div class="font-headline-md text-white count-up" data-target="60" data-suffix="s">0</div>
+      <div class="font-label-caps text-white/30 mt-1">Assessment Time</div>
+    </div>
+    <div class="stat-item px-8 py-4 text-center reveal">
+      <div class="font-label-caps text-[#FFBF00] mb-3">COST REDUCTION</div>
+      <div class="font-headline-md text-white count-up" data-target="98" data-suffix="%">0</div>
+      <div class="font-label-caps text-white/30 mt-1">vs Field Visits</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 3 — THE PROBLEM
+════════════════════════════════════════ -->
+<section id="problem" class="max-w-[1200px] mx-auto px-8 section-pad flex flex-col md:flex-row gap-16">
+  <!-- Sticky left -->
+  <div class="md:w-5/12 md:sticky md:top-32 h-fit">
+    <div class="font-label-caps text-red-400 mb-5 reveal">THE BOTTLENECK</div>
+    <h2 class="font-headline-lg text-white reveal" style="font-size:52px;line-height:1.05;">
+      India's kiranas can't get loans because of the
+      <span class="text-[#FFBF00]">"Visibility Gap."</span>
+    </h2>
+    <p class="text-white/40 mt-6 font-body-lg reveal">
+      The cash flow is real. The data just doesn't exist on paper — yet.
+    </p>
+  </div>
+
+  <!-- Cards -->
+  <div class="md:w-7/12 flex flex-col gap-8">
+    <div class="glass-card fraud-card p-10 reveal group">
+      <div class="w-11 h-11 rounded-xl border border-red-500/30 bg-red-500/5 flex items-center justify-center mb-6 text-red-400 group-hover:bg-red-500/10 transition-colors">
+        <span class="material-symbols-outlined">menu_book</span>
+      </div>
+      <h3 class="font-headline-md text-white mb-3">No Formal Books</h3>
+      <p class="text-white/50 mb-5 font-body-md">Cash-based transactions and handwritten registers leave zero digital footprint for traditional banks to analyze.</p>
+      <span class="font-label-caps text-red-400 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded">UNVERIFIABLE DATA</span>
+    </div>
+    <div class="glass-card fraud-card p-10 reveal group">
+      <div class="w-11 h-11 rounded-xl border border-red-500/30 bg-red-500/5 flex items-center justify-center mb-6 text-red-400 group-hover:bg-red-500/10 transition-colors">
+        <span class="material-symbols-outlined">distance</span>
+      </div>
+      <h3 class="font-headline-md text-white mb-3">Field Visits Don't Scale</h3>
+      <p class="text-white/50 mb-5 font-body-md">Each manual audit costs ₹800–₹1,200. At 13 million stores, that's ₹10,400 Crore just to assess everyone once.</p>
+      <span class="font-label-caps text-red-400 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded">NEGATIVE ROI UNIT ECONOMICS</span>
+    </div>
+    <div class="glass-card fraud-card p-10 reveal group">
+      <div class="w-11 h-11 rounded-xl border border-red-500/30 bg-red-500/5 flex items-center justify-center mb-6 text-red-400 group-hover:bg-red-500/10 transition-colors">
+        <span class="material-symbols-outlined">psychology_alt</span>
+      </div>
+      <h3 class="font-headline-md text-white mb-3">Gut Feel Isn't Credit Policy</h3>
+      <p class="text-white/50 mb-5 font-body-md">Subjective officer judgment causes high NPAs and systemic bias against small-town retailers who deserve credit.</p>
+      <span class="font-label-caps text-red-400 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded">SYSTEMIC RISK</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 4 — SOLUTION REVEAL
+════════════════════════════════════════ -->
+<section id="solution" class="bg-[#0a0a0a] section-pad overflow-hidden relative border-t border-white/5">
+  <div class="absolute -right-[5%] top-[-10%] w-[700px] h-[700px] ambient-amber blur-[160px] rounded-full opacity-60 pointer-events-none"></div>
+
+  <div class="max-w-[1200px] mx-auto px-8">
+    <div class="font-label-caps text-[#FFBF00] mb-8 reveal">THE SOLUTION</div>
+
+    <!-- Staggered headline reveal -->
+    <div class="mb-24 space-y-2" id="solution-headline">
+      <div class="overflow-hidden"><h2 class="font-display-hero text-white leading-none reveal">KiranaLens.</h2></div>
+      <div class="overflow-hidden"><h2 class="font-display-hero text-white/20 leading-none reveal">A smartphone.</h2></div>
+      <div class="overflow-hidden"><h2 class="font-display-hero text-white leading-none reveal">A new credit score.</h2></div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <!-- Steps -->
+      <div class="space-y-10 reveal">
+        <div class="flex items-start gap-6 group">
+          <div class="w-9 h-9 rounded-full bg-[#FFBF00] text-black font-black flex items-center justify-center shrink-0 text-sm group-hover:scale-110 transition-transform">1</div>
+          <div>
+            <div class="font-headline-md text-white mb-1">Record</div>
+            <p class="text-white/50 font-body-md">A 60-second video walkthrough of shop shelves. Any Android or iPhone. No special hardware.</p>
+          </div>
+        </div>
+        <div class="w-px h-8 bg-white/10 ml-4"></div>
+        <div class="flex items-start gap-6 group">
+          <div class="w-9 h-9 rounded-full bg-[#FFBF00] text-black font-black flex items-center justify-center shrink-0 text-sm group-hover:scale-110 transition-transform">2</div>
+          <div>
+            <div class="font-headline-md text-white mb-1">Analyze</div>
+            <p class="text-white/50 font-body-md">Edge-AI identifies SKU diversity, shelf density, inventory depth, refill velocity, and brand concentration in real time.</p>
+          </div>
+        </div>
+        <div class="w-px h-8 bg-white/10 ml-4"></div>
+        <div class="flex items-start gap-6 group">
+          <div class="w-9 h-9 rounded-full bg-[#FFBF00] text-black font-black flex items-center justify-center shrink-0 text-sm group-hover:scale-110 transition-transform">3</div>
+          <div>
+            <div class="font-headline-md text-white mb-1">Score</div>
+            <p class="text-white/50 font-body-md">Instant creditworthiness report with confidence bands — backed by visual evidence, not a field officer's gut.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output card -->
+      <div class="glass-card rounded-2xl output-card overflow-hidden reveal" id="output-card">
+        <!-- Scan line effect -->
+        <div class="relative overflow-hidden">
+          <div class="scan-line" id="scan-line"></div>
+          <div class="p-8">
+            <div class="flex justify-between items-center mb-8">
+              <div class="font-data-mono text-white/30 text-[12px]">AUDIT_ID: KL-9921-X</div>
+              <div class="flex items-center gap-2 bg-green-500/10 text-green-400 px-4 py-1.5 rounded-full border border-green-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                <span class="font-label-caps">PRE-APPROVE</span>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-6 mb-8">
+              <div class="bg-white/3 rounded-xl p-4 border border-white/5">
+                <div class="font-label-caps text-white/30 mb-2">EST. DAILY SALES</div>
+                <div class="font-headline-md text-white text-2xl">₹18,400</div>
+              </div>
+              <div class="bg-white/3 rounded-xl p-4 border border-white/5">
+                <div class="font-label-caps text-white/30 mb-2">REVENUE INDEX</div>
+                <div class="font-headline-md text-white text-2xl">0.92</div>
+              </div>
+              <div class="bg-white/3 rounded-xl p-4 border border-white/5">
+                <div class="font-label-caps text-white/30 mb-2">RISK SCORE</div>
+                <div class="font-headline-md text-green-400 text-2xl">AA+</div>
+              </div>
+              <div class="bg-white/3 rounded-xl p-4 border border-white/5">
+                <div class="font-label-caps text-white/30 mb-2">FRAUD PROB.</div>
+                <div class="font-headline-md text-green-400 text-2xl">0.02%</div>
+              </div>
+            </div>
+            <div class="bg-black border border-white/8 p-5 rounded-xl font-data-mono text-[12px] leading-7">
+              <div class="flex gap-4"><span class="text-white/20 select-none">01</span><span class="text-blue-400">{ <span class="text-white/50">"store_intel"</span>: {</span></div>
+              <div class="flex gap-4"><span class="text-white/20 select-none">02</span><span class="pl-4 text-[#FFBF00]">"shelf_occupancy": <span class="text-green-400">0.88</span>,</span></div>
+              <div class="flex gap-4"><span class="text-white/20 select-none">03</span><span class="pl-4 text-[#FFBF00]">"sku_count": <span class="text-green-400">1420</span>,</span></div>
+              <div class="flex gap-4"><span class="text-white/20 select-none">04</span><span class="pl-4 text-[#FFBF00]">"category": <span class="text-orange-300">"High Premium"</span>,</span></div>
+              <div class="flex gap-4"><span class="text-white/20 select-none">05</span><span class="pl-4 text-[#FFBF00]">"refill_velocity": <span class="text-orange-300">"High"</span>,</span></div>
+              <div class="flex gap-4"><span class="text-white/20 select-none">06</span><span class="pl-4 text-[#FFBF00]">"confidence": <span class="text-green-400">0.91</span></span></div>
+              <div class="flex gap-4"><span class="text-white/20 select-none">07</span><span class="text-blue-400">} }</span></div>
+            </div>
+            <div class="mt-4 flex items-center gap-2 text-xs">
+              <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+              <span class="text-green-400 font-label-caps">Decision generated in 4.2s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 5 — VISUAL SIGNALS
+════════════════════════════════════════ -->
+<section id="signals" class="max-w-[1200px] mx-auto px-8 section-pad">
+  <div class="font-label-caps text-[#FFBF00] mb-4 reveal">VISION INTELLIGENCE</div>
+  <h2 class="font-headline-lg text-white mb-4 reveal">What the AI sees.</h2>
+  <p class="text-white/40 font-body-lg mb-16 reveal">Four visual signals extracted from every frame.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+    <!-- Card 1 -->
+    <div class="glass-card p-8 flex flex-col gap-6 reveal group hover:-translate-y-2 transition-transform duration-300">
+      <div>
+        <div class="font-label-caps text-white/30 mb-1">01</div>
+        <div class="font-label-caps text-blue-400">SHELF DENSITY</div>
+      </div>
+      <div>
+        <div class="h-1 w-full bg-white/8 rounded-full overflow-hidden mb-3">
+          <div class="bar-fill h-full bg-blue-400 rounded-full" data-width="85"></div>
+        </div>
+        <div class="font-headline-md text-white text-3xl mb-2">85%</div>
+        <p class="text-white/40 text-sm leading-relaxed">Volume utilization across main racking — proxy for working capital deployed.</p>
+      </div>
+    </div>
+    <!-- Card 2 -->
+    <div class="glass-card p-8 flex flex-col gap-6 reveal group hover:-translate-y-2 transition-transform duration-300">
+      <div>
+        <div class="font-label-caps text-white/30 mb-1">02</div>
+        <div class="font-label-caps text-[#FFBF00]">SKU DIVERSITY</div>
+      </div>
+      <div>
+        <div class="h-1 w-full bg-white/8 rounded-full overflow-hidden mb-3">
+          <div class="bar-fill h-full bg-[#FFBF00] rounded-full" data-width="62"></div>
+        </div>
+        <div class="font-headline-md text-white text-3xl mb-2">1,420</div>
+        <p class="text-white/40 text-sm leading-relaxed">Unique product identifiers detected — signals footfall capture across customer types.</p>
+      </div>
+    </div>
+    <!-- Card 3 -->
+    <div class="glass-card p-8 flex flex-col gap-6 reveal group hover:-translate-y-2 transition-transform duration-300">
+      <div>
+        <div class="font-label-caps text-white/30 mb-1">03</div>
+        <div class="font-label-caps text-emerald-400">INVENTORY VALUE</div>
+      </div>
+      <div>
+        <div class="h-1 w-full bg-white/8 rounded-full overflow-hidden mb-3">
+          <div class="bar-fill h-full bg-emerald-400 rounded-full" data-width="78"></div>
+        </div>
+        <div class="font-headline-md text-white text-3xl mb-2">₹4.2L</div>
+        <p class="text-white/40 text-sm leading-relaxed">Stock-at-hand estimate using average market prices — fast-moving vs slow-moving mix.</p>
+      </div>
+    </div>
+    <!-- Card 4 -->
+    <div class="glass-card p-8 flex flex-col gap-6 reveal group hover:-translate-y-2 transition-transform duration-300">
+      <div>
+        <div class="font-label-caps text-white/30 mb-1">04</div>
+        <div class="font-label-caps text-purple-400">REFILL SIGNAL</div>
+      </div>
+      <div>
+        <div class="h-1 w-full bg-white/8 rounded-full overflow-hidden mb-3">
+          <div class="bar-fill h-full bg-purple-400 rounded-full" data-width="44"></div>
+        </div>
+        <div class="font-headline-md text-white text-3xl mb-2">V.Fast</div>
+        <p class="text-white/40 text-sm leading-relaxed">Void-pattern detection predicts replenishment rate — partially empty = recent demand.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 6 — GEO INTELLIGENCE
+════════════════════════════════════════ -->
+<section class="max-w-[1200px] mx-auto px-8 section-pad border-t border-white/5">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+    <div>
+      <div class="font-label-caps text-[#FFBF00] mb-4 reveal">CONTEXTUAL DATA</div>
+      <h2 class="font-headline-lg text-white mb-8 reveal" style="font-size:52px">Hyper-local surroundings.</h2>
+      <ul class="space-y-10">
+        <li class="flex gap-6 reveal">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-blue-400 text-xl">home_work</span>
+          </div>
+          <div>
+            <div class="font-headline-md text-white text-xl mb-1">Catchment Intel</div>
+            <p class="text-white/50 font-body-md">Population within 500m radius, residential vs commercial mix — demand baseline signal.</p>
+          </div>
+        </li>
+        <li class="flex gap-6 reveal">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-blue-400 text-xl">groups</span>
+          </div>
+          <div>
+            <div class="font-headline-md text-white text-xl mb-1">Footfall Density</div>
+            <p class="text-white/50 font-body-md">Road type, proximity to schools, offices, transport hubs → traffic multiplier for daily sales estimate.</p>
+          </div>
+        </li>
+        <li class="flex gap-6 reveal">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-blue-400 text-xl">radar</span>
+          </div>
+          <div>
+            <div class="font-headline-md text-white text-xl mb-1">Competitive Heatmap</div>
+            <p class="text-white/50 font-body-md">Nearby store count — moderate competition proves demand; excess compresses margins.</p>
+          </div>
+        </li>
+      </ul>
+
+      <!-- Formula -->
+      <div class="mt-10 p-4 rounded-xl bg-white/3 border border-white/8 font-data-mono text-white/60 text-sm reveal">
+        Sales = f( SDI · SKU · Inventory · Footfall · Competition · Area · Mix )
+      </div>
+    </div>
+
+    <!-- Radar SVG -->
+    <div class="relative aspect-square flex items-center justify-center reveal">
+      <div class="absolute inset-0 ambient-blue blur-[100px] rounded-full"></div>
+      <svg viewBox="0 0 400 400" class="w-full h-full relative z-10">
+        <!-- Rings -->
+        <circle cx="200" cy="200" r="180" fill="none" stroke="rgba(96,165,250,0.12)" stroke-width="1"/>
+        <circle cx="200" cy="200" r="120" fill="none" stroke="rgba(96,165,250,0.12)" stroke-width="1"/>
+        <circle cx="200" cy="200" r="60"  fill="none" stroke="rgba(96,165,250,0.12)" stroke-width="1"/>
+        <!-- Cross -->
+        <line x1="200" x2="200" y1="20" y2="380" stroke="rgba(96,165,250,0.08)" stroke-width="1"/>
+        <line x1="20" x2="380" y1="200" y2="200" stroke="rgba(96,165,250,0.08)" stroke-width="1"/>
+        <!-- Sweep -->
+        <path d="M 200 200 L 200 20 A 180 180 0 0 1 380 200 Z" fill="rgba(96,165,250,0.07)" class="radar-sweep"/>
+        <!-- Center pin -->
+        <circle cx="200" cy="200" r="6" fill="#FFBF00"/>
+        <circle cx="200" cy="200" r="14" fill="none" stroke="rgba(255,191,0,0.3)" stroke-width="1" class="pulse-ring"/>
+        <circle cx="200" cy="200" r="14" fill="none" stroke="rgba(255,191,0,0.2)" stroke-width="1" class="pulse-ring" style="animation-delay:.8s"/>
+        <!-- Floating POI dots -->
+        <g class="float-1">
+          <circle cx="265" cy="135" r="5" fill="#60a5fa" opacity=".8"/>
+          <text x="275" y="132" fill="rgba(255,255,255,0.5)" font-size="11" font-family="Inter">School 280m</text>
+        </g>
+        <g class="float-2">
+          <circle cx="115" cy="275" r="5" fill="#60a5fa" opacity=".8"/>
+          <text x="125" y="272" fill="rgba(255,255,255,0.5)" font-size="11" font-family="Inter">Bus Stop 90m</text>
+        </g>
+        <g class="float-3">
+          <circle cx="300" cy="260" r="4" fill="#f59e0b" opacity=".8"/>
+          <text x="308" y="257" fill="rgba(255,255,255,0.5)" font-size="11" font-family="Inter">Rival 160m</text>
+        </g>
+        <!-- Connecting lines -->
+        <line x1="200" y1="200" x2="265" y2="135" stroke="rgba(96,165,250,0.2)" stroke-width="1" stroke-dasharray="4 4"/>
+        <line x1="200" y1="200" x2="115" y2="275" stroke="rgba(96,165,250,0.2)" stroke-width="1" stroke-dasharray="4 4"/>
+        <line x1="200" y1="200" x2="300" y2="260" stroke="rgba(245,158,11,0.2)" stroke-width="1" stroke-dasharray="4 4"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 7 — FRAUD DETECTION
+════════════════════════════════════════ -->
+<section class="section-pad border-t border-white/5" style="background:radial-gradient(ellipse at center bottom, rgba(239,68,68,0.04) 0%, transparent 70%)">
+  <div class="max-w-[1200px] mx-auto px-8">
+    <div class="flex items-center gap-3 mb-6 reveal">
+      <span class="material-symbols-outlined text-red-400" style="font-variation-settings:'FILL' 1">security</span>
+      <span class="font-label-caps text-red-400">ANTI-GAMING ENGINE</span>
+    </div>
+    <h2 class="font-headline-lg text-white mb-4 reveal" style="font-size:52px">Built to be cheat-proof.</h2>
+    <p class="text-white/40 font-body-lg mb-16 reveal">Every manipulation has a counter-signal. Every signal has a cross-validator.</p>
+
+    <div class="flex flex-col gap-5">
+      <div class="glass-card p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-l-4 border-red-500/50 reveal group hover:bg-red-500/[0.03] transition-colors">
+        <div class="max-w-xl">
+          <div class="font-label-caps text-red-400 mb-2">FRAUD VECTOR 01</div>
+          <div class="font-headline-md text-white text-xl mb-2">Shelf-Stuffing Detection</div>
+          <p class="text-white/50 font-body-md">AI recognizes borrowed goods — multi-image temporal consistency check catches inventory that wasn't there yesterday.</p>
+        </div>
+        <div class="shrink-0 flex items-center gap-2 bg-green-500/10 text-green-400 px-5 py-2 rounded-full border border-green-500/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+          <span class="font-label-caps">DETECTED</span>
+        </div>
+      </div>
+      <div class="glass-card p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-l-4 border-red-500/50 reveal group hover:bg-red-500/[0.03] transition-colors">
+        <div class="max-w-xl">
+          <div class="font-label-caps text-red-400 mb-2">FRAUD VECTOR 02</div>
+          <div class="font-headline-md text-white text-xl mb-2">Location Bias Verification</div>
+          <p class="text-white/50 font-body-md">Cross-referencing GPS metadata with architectural landmarks. High inventory in low-footfall geo = automatic flag.</p>
+        </div>
+        <div class="shrink-0 flex items-center gap-2 bg-green-500/10 text-green-400 px-5 py-2 rounded-full border border-green-500/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+          <span class="font-label-caps">DETECTED</span>
+        </div>
+      </div>
+      <div class="glass-card p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-l-4 border-red-500/50 reveal group hover:bg-red-500/[0.03] transition-colors">
+        <div class="max-w-xl">
+          <div class="font-label-caps text-red-400 mb-2">FRAUD VECTOR 03</div>
+          <div class="font-headline-md text-white text-xl mb-2">Borrowed Space Analysis</div>
+          <p class="text-white/50 font-body-md">Visual area estimation vs GPS footprint discrepancy. Differentiates store-owned inventory from distributor transit stock.</p>
+        </div>
+        <div class="shrink-0 flex items-center gap-2 bg-green-500/10 text-green-400 px-5 py-2 rounded-full border border-green-500/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+          <span class="font-label-caps">DETECTED</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-10 p-6 rounded-2xl bg-white/3 border border-white/8 text-center reveal">
+      <p class="text-white font-semibold text-lg">Fraud resilience is a first-class feature, not an afterthought.</p>
+      <p class="text-white/40 mt-1">Every signal has a counter-signal. Every output is auditable.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 8 — BUSINESS IMPACT
+════════════════════════════════════════ -->
+<section id="impact" class="max-w-[1200px] mx-auto px-8 section-pad">
+  <div class="font-label-caps text-[#FFBF00] mb-4 reveal">BUSINESS CASE</div>
+  <h2 class="font-headline-lg text-white mb-16 reveal" style="font-size:52px">Why Poonawalla Fincorp wins.</h2>
+
+  <div class="flex flex-col lg:flex-row rounded-2xl overflow-hidden border border-white/8 reveal">
+    <!-- Left: cost -->
+    <div class="lg:w-1/2 bg-[#FFBF00] p-14 flex flex-col justify-between">
+      <div>
+        <h3 class="text-black font-black text-4xl mb-10 leading-tight">Cost per<br/>Underwriting</h3>
+        <div class="flex items-end gap-10">
+          <div>
+            <div class="text-black/40 font-label-caps mb-2">BEFORE</div>
+            <div class="text-black font-black text-3xl line-through opacity-40">₹1,200</div>
+          </div>
+          <span class="text-black/30 text-4xl mb-1">→</span>
+          <div>
+            <div class="text-black/40 font-label-caps mb-2">WITH KIRANALENS</div>
+            <div class="text-black font-black" style="font-size:clamp(48px,6vw,80px);line-height:1">₹15</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-12 pt-8 border-t border-black/15">
+        <p class="text-black font-bold text-lg">98.7% reduction in operational overhead.</p>
+        <p class="text-black/60 mt-1 text-sm">Break-even at 1 prevented bad loan per 500 assessments.</p>
+      </div>
+    </div>
+    <!-- Right: growth -->
+    <div class="lg:w-1/2 bg-[#0d0d0d] p-14">
+      <h3 class="text-white font-black text-2xl mb-10">Growth Impact</h3>
+      <div class="space-y-0">
+        <div class="flex justify-between items-center border-b border-white/5 py-6">
+          <span class="text-white/50">Portfolio Reach</span>
+          <span class="font-black text-white text-2xl">100×</span>
+        </div>
+        <div class="flex justify-between items-center border-b border-white/5 py-6">
+          <span class="text-white/50">Disbursement Cycle</span>
+          <span class="font-black text-white text-2xl">4h <span class="text-sm font-normal text-white/30">vs 7 days</span></span>
+        </div>
+        <div class="flex justify-between items-center border-b border-white/5 py-6">
+          <span class="text-white/50">NPA / Default Rate</span>
+          <span class="font-black text-green-400 text-2xl">−30%</span>
+        </div>
+        <div class="flex justify-between items-center py-6">
+          <span class="text-white/50">Addressable Market</span>
+          <span class="font-black text-[#FFBF00] text-2xl">₹39L Cr</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 9 — ARCHITECTURE
+════════════════════════════════════════ -->
+<section class="bg-[#080808] section-pad border-t border-white/5">
+  <div class="max-w-[1200px] mx-auto px-8">
+    <div class="font-label-caps text-[#FFBF00] mb-4 reveal text-center">UNDER THE HOOD</div>
+    <h2 class="font-headline-lg text-white mb-4 reveal text-center" style="font-size:52px">Simple. Scalable. Deployable.</h2>
+    <p class="text-white/40 font-body-lg mb-20 reveal text-center">Three-layer architecture. Production-grade from day one.</p>
+
+    <div class="flex flex-col gap-0 max-w-3xl mx-auto">
+      <!-- Layer 1 -->
+      <div class="glass-card p-8 flex flex-col md:flex-row items-center gap-8 rounded-2xl rounded-b-none border-b-0 reveal">
+        <div class="font-label-caps text-[#FFBF00] w-20 shrink-0">INPUT</div>
+        <div class="flex gap-3 flex-wrap">
+          <span class="bg-[#FFBF00]/5 border border-[#FFBF00]/20 px-4 py-2 rounded-lg font-data-mono text-[12px] text-[#FFBF00]">iOS/Android SDK</span>
+          <span class="bg-[#FFBF00]/5 border border-[#FFBF00]/20 px-4 py-2 rounded-lg font-data-mono text-[12px] text-[#FFBF00]">Video Stream Processor</span>
+          <span class="bg-[#FFBF00]/5 border border-[#FFBF00]/20 px-4 py-2 rounded-lg font-data-mono text-[12px] text-[#FFBF00]">GPS / IMU Metadata</span>
+        </div>
+      </div>
+      <!-- Connector -->
+      <div class="arch-connector"></div>
+      <!-- Layer 2 -->
+      <div class="glass-card p-8 flex flex-col md:flex-row items-center gap-8 border border-blue-500/20 bg-blue-500/3 rounded-2xl rounded-t-none rounded-b-none border-t-0 border-b-0 reveal">
+        <div class="font-label-caps text-blue-400 w-20 shrink-0">AI ENGINE</div>
+        <div class="flex gap-3 flex-wrap">
+          <span class="bg-blue-500/5 border border-blue-500/20 px-4 py-2 rounded-lg font-data-mono text-[12px] text-blue-300">YOLOv10 Object Detection</span>
+          <span class="bg-blue-500/5 border border-blue-500/20 px-4 py-2 rounded-lg font-data-mono text-[12px] text-blue-300">Google Vision API</span>
+          <span class="bg-blue-500/5 border border-blue-500/20 px-4 py-2 rounded-lg font-data-mono text-[12px] text-blue-300">OCR Engine</span>
+          <span class="bg-blue-500/5 border border-blue-500/20 px-4 py-2 rounded-lg font-data-mono text-[12px] text-blue-300">Geo Scoring (Maps API)</span>
+          <span class="bg-blue-500/5 border border-blue-500/20 px-4 py-2 rounded-lg font-data-mono text-[12px] text-blue-300">Confidence Calibration</span>
+        </div>
+      </div>
+      <!-- Connector 2 -->
+      <div class="arch-connector" style="background:linear-gradient(to bottom, #3b82f6, #10b981)"></div>
+      <!-- Layer 3 -->
+      <div class="glass-card p-8 flex flex-col md:flex-row items-center gap-8 border border-emerald-500/20 bg-emerald-500/3 rounded-2xl rounded-t-none border-t-0 reveal">
+        <div class="font-label-caps text-emerald-400 w-20 shrink-0">OUTPUT</div>
+        <div class="flex gap-3 flex-wrap">
+          <span class="bg-emerald-500/5 border border-emerald-500/20 px-4 py-2 rounded-lg font-data-mono text-[12px] text-emerald-300">REST API</span>
+          <span class="bg-emerald-500/5 border border-emerald-500/20 px-4 py-2 rounded-lg font-data-mono text-[12px] text-emerald-300">PDF Report Engine</span>
+          <span class="bg-emerald-500/5 border border-emerald-500/20 px-4 py-2 rounded-lg font-data-mono text-[12px] text-emerald-300">Lender Dashboard</span>
+          <span class="bg-emerald-500/5 border border-emerald-500/20 px-4 py-2 rounded-lg font-data-mono text-[12px] text-emerald-300">Webhooks</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tech stack chips -->
+    <div class="flex flex-wrap gap-3 justify-center mt-16 reveal">
+      <span class="font-label-caps text-white/25 mr-4 self-center">BUILT WITH</span>
+      <span class="px-4 py-2 rounded-full bg-white/4 border border-white/8 font-data-mono text-[12px] text-white/50">React</span>
+      <span class="px-4 py-2 rounded-full bg-white/4 border border-white/8 font-data-mono text-[12px] text-white/50">Node.js</span>
+      <span class="px-4 py-2 rounded-full bg-white/4 border border-white/8 font-data-mono text-[12px] text-white/50">FastAPI</span>
+      <span class="px-4 py-2 rounded-full bg-white/4 border border-white/8 font-data-mono text-[12px] text-white/50">YOLOv10</span>
+      <span class="px-4 py-2 rounded-full bg-white/4 border border-white/8 font-data-mono text-[12px] text-white/50">Google Vision</span>
+      <span class="px-4 py-2 rounded-full bg-white/4 border border-white/8 font-data-mono text-[12px] text-white/50">Maps API</span>
+      <span class="px-4 py-2 rounded-full bg-white/4 border border-white/8 font-data-mono text-[12px] text-white/50">MongoDB</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 10 — CLOSING CTA
+════════════════════════════════════════ -->
+<section class="relative section-pad overflow-hidden text-center">
+  <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+    <div class="w-[900px] h-[900px] ambient-amber blur-[200px] rounded-full opacity-70"></div>
+  </div>
+  <div class="relative z-10 max-w-[1100px] mx-auto px-8">
+    <div class="font-label-caps text-[#FFBF00] mb-8 reveal">TRY IT NOW</div>
+    <h2 class="font-display-hero text-white mb-8 reveal" style="line-height:1.0">
+      Every kirana store<br/>
+      <span class="text-[#FFBF00]">deserves a fair shot.</span>
+    </h2>
+    <p class="text-white/50 font-body-lg mb-14 reveal">
+      KiranaLens turns a smartphone into a branch.<br/>
+      Every store in India becomes a bankable asset — in 60 seconds, from anywhere.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-5 justify-center reveal">
+      <a href="/assess.html" class="btn-primary px-12 py-5 rounded-xl text-lg">Assess your first store →</a>
+      <a href="https://github.com/AshThe25/KiranaLens-TenzorX2026-FINAL" target="_blank" class="btn-secondary px-12 py-5 rounded-xl text-lg">View on GitHub</a>
+    </div>
+    <p class="font-label-caps text-white/20 mt-10 reveal">Built for Poonawalla Fincorp · TenzorX 2026 · Problem Statement 4C</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-white/5 py-14">
+  <div class="max-w-[1200px] mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+    <div class="font-label-caps text-white/20">© 2026 KiranaLens · Precision Intelligence for Retail</div>
+    <div class="flex gap-8">
+      <a class="font-label-caps text-white/20 hover:text-white/60 transition-colors" href="#">Privacy</a>
+      <a class="font-label-caps text-white/20 hover:text-white/60 transition-colors" href="#">Terms</a>
+      <a class="font-label-caps text-white/20 hover:text-white/60 transition-colors" href="https://github.com/AshThe25/KiranaLens-TenzorX2026-FINAL" target="_blank">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── Fallback: make all animated elements visible immediately ──
+function showAllFallback() {
+  var ids = ['hero-pill','hero-sub','hero-cta','hero-footnote','scroll-hint'];
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.style.opacity = '1'; el.style.transform = 'none'; el.style.filter = 'none'; }
+  });
+  document.querySelectorAll('.hero-word, .reveal').forEach(function(el) {
+    el.style.opacity = '1'; el.style.transform = 'none'; el.style.filter = 'none';
+  });
+}
+
+(function() {
+  // ── Check if required libraries loaded ──────────────────────
+  if (typeof gsap === 'undefined' || typeof Lenis === 'undefined') {
+    showAllFallback();
+    return;
+  }
+
+  try {
+
+  // ── 1. Lenis smooth scroll ──────────────────────────────────
+  var lenis = new Lenis({
+    duration: 1.3,
+    easing: function(t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+    smooth: true,
+  });
+  function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+  requestAnimationFrame(raf);
+
+  // ── 2. Custom cursor ────────────────────────────────────────
+  var dot  = document.getElementById('cursor-dot');
+  var glow = document.getElementById('cursor-glow');
+  var mx = window.innerWidth/2, my = window.innerHeight/2;
+  var gx = mx, gy = my;
+
+  document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
+
+  (function animateCursor() {
+    dot.style.left = mx + 'px';
+    dot.style.top  = my + 'px';
+    gx += (mx - gx) * 0.08;
+    gy += (my - gy) * 0.08;
+    glow.style.left = gx + 'px';
+    glow.style.top  = gy + 'px';
+    requestAnimationFrame(animateCursor);
+  })();
+
+  document.querySelectorAll('a, button, [data-hover]').forEach(function(el) {
+    el.addEventListener('mouseenter', function() {
+      dot.style.width = '24px';
+      dot.style.height = '24px';
+      dot.style.background = '#fff';
+    });
+    el.addEventListener('mouseleave', function() {
+      dot.style.width = '10px';
+      dot.style.height = '10px';
+      dot.style.background = '#FFBF00';
+    });
+  });
+
+  // ── 3. GSAP setup ───────────────────────────────────────────
+  gsap.registerPlugin(ScrollTrigger);
+
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(function(time) { lenis.raf(time * 1000); });
+  gsap.ticker.lagSmoothing(0);
+
+  // ── 4. Hero animation ───────────────────────────────────────
+  var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+  tl.to('#hero-pill', { opacity: 1, y: 0, duration: 0.7, delay: 0.2 })
+    .to('.hero-word', {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      duration: 0.8,
+      stagger: 0.07,
+      ease: 'power4.out'
+    }, '-=0.3')
+    .to('#hero-sub',      { opacity: 1, y: 0, duration: 0.6 }, '-=0.3')
+    .to('#hero-cta',      { opacity: 1, y: 0, duration: 0.6 }, '-=0.4')
+    .to('#hero-footnote', { opacity: 1, y: 0, duration: 0.6 }, '-=0.4')
+    .to('#scroll-hint',   { opacity: 0.6, duration: 0.6 }, '-=0.2');
+
+  gsap.to('#hero-glow', {
+    scale: 1.15,
+    duration: 4,
+    repeat: -1,
+    yoyo: true,
+    ease: 'sine.inOut'
+  });
+
+  // ── 5. Scroll-reveal for .reveal elements ───────────────────
+  gsap.utils.toArray('.reveal').forEach(function(el) {
+    if (el.id === 'hero-sub' || el.id === 'hero-cta' || el.id === 'hero-footnote') return;
+
+    gsap.fromTo(el,
+      { opacity: 0, y: 40 },
+      {
+        opacity: 1, y: 0,
+        duration: 0.75,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 88%',
+          toggleActions: 'play none none none'
+        }
+      }
+    );
+  });
+
+  // ── 6. Solution headline stagger ────────────────────────────
+  gsap.utils.toArray('#solution-headline .reveal').forEach(function(el, i) {
+    gsap.fromTo(el,
+      { opacity: 0, x: -30 },
+      {
+        opacity: 1, x: 0,
+        duration: 0.8,
+        delay: i * 0.1,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '#solution-headline',
+          start: 'top 80%',
+          toggleActions: 'play none none none'
+        }
+      }
+    );
+  });
+
+  // ── 7. Count-up numbers ─────────────────────────────────────
+  document.querySelectorAll('.count-up').forEach(function(el) {
+    var target = parseFloat(el.dataset.target);
+    var suffix = el.dataset.suffix || '';
+    var started = false;
+
+    var obs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting && !started) {
+        started = true;
+        var duration = 1800;
+        var startTime = performance.now();
+
+        function update(now) {
+          var elapsed = now - startTime;
+          var progress = Math.min(elapsed / duration, 1);
+          var eased = 1 - Math.pow(1 - progress, 3);
+          var current = Math.round(eased * target);
+          el.textContent = current + suffix;
+          if (progress < 1) requestAnimationFrame(update);
+        }
+        requestAnimationFrame(update);
+        obs.disconnect();
+      }
+    }, { threshold: 0.5 });
+    obs.observe(el);
+  });
+
+  // ── 8. Progress bar animation ───────────────────────────────
+  document.querySelectorAll('.bar-fill').forEach(function(bar) {
+    var targetWidth = bar.dataset.width + '%';
+    var done = false;
+
+    var obs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting && !done) {
+        done = true;
+        setTimeout(function() { bar.style.width = targetWidth; }, 200);
+        obs.disconnect();
+      }
+    }, { threshold: 0.5 });
+    obs.observe(bar.parentElement);
+  });
+
+  // ── 9. Output card scan line ─────────────────────────────────
+  var scanLine = document.getElementById('scan-line');
+  if (scanLine) {
+    ScrollTrigger.create({
+      trigger: '#output-card',
+      start: 'top 80%',
+      onEnter: function() { scanLine.style.display = 'block'; }
+    });
+  }
+
+  // ── 10. Parallax on hero glow (mouse tilt) ───────────────────
+  document.addEventListener('mousemove', function(e) {
+    var xPct = (e.clientX / window.innerWidth  - 0.5) * 40;
+    var yPct = (e.clientY / window.innerHeight - 0.5) * 40;
+    gsap.to('#hero-glow', { x: xPct, y: yPct, duration: 1.5, ease: 'power2.out' });
+  });
+
+  // ── 11. Navbar shrink on scroll ──────────────────────────────
+  var navbar = document.getElementById('navbar');
+  lenis.on('scroll', function(s) {
+    if (s.scroll > 80) {
+      navbar.style.background = 'rgba(0,0,0,0.85)';
+    } else {
+      navbar.style.background = 'rgba(0,0,0,0.6)';
+    }
+  });
+
+  // ── 12. Fraud card stagger ───────────────────────────────────
+  gsap.utils.toArray('.fraud-card').forEach(function(el, i) {
+    gsap.fromTo(el,
+      { opacity: 0, x: -20 },
+      {
+        opacity: 1, x: 0,
+        duration: 0.6,
+        delay: i * 0.08,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 88%',
+          toggleActions: 'play none none none'
+        }
+      }
+    );
+  });
+
+  } catch(e) {
+    // If anything in the animation setup fails, show all content immediately
+    console.warn('KiranaLens: Animation setup failed, showing content statically.', e);
+    showAllFallback();
+  }
+
+})();
+</script>
+</body>
+</html>

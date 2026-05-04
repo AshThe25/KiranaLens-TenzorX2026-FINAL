@@ -15,8 +15,8 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Serve frontend from root
-app.use(express.static(path.join(__dirname, '..')));
+// Serve frontend from backend directory (HTML files co-located for deployment)
+app.use(express.static(__dirname));
 
 // ── Multer (image upload, memory) ───────────────────────────
 const upload = multer({
@@ -94,9 +94,9 @@ app.get('/api/health', (req, res) => {
 app.get('*', (req, res) => {
   // serve assess.html for /assess or /assess.html, otherwise index.html
   if (req.path === '/assess' || req.path === '/assess.html') {
-    return res.sendFile(path.join(__dirname, '..', 'assess.html'));
+    return res.sendFile(path.join(__dirname, 'assess.html'));
   }
-  res.sendFile(path.join(__dirname, '..', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // ── Global error middleware ───────────────────────────────────
