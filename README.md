@@ -9,15 +9,18 @@ KiranaLens turns a smartphone into a credit underwriting tool. Upload 3–5 phot
 
 ---
 
-## 🚀 Live Demo
+## 🚀 Run Locally (2 minutes)
 
-| | Link |
-|---|---|
-| 🌐 **Landing Page** | https://kiranalens-tenzorx2026-final-production.up.railway.app |
-| 🔬 **Assessment Tool** | https://kiranalens-tenzorx2026-final-production.up.railway.app/assess.html |
-| 🩺 **API Health** | https://kiranalens-tenzorx2026-final-production.up.railway.app/api/health |
+```bash
+git clone https://github.com/AshThe25/KiranaLens-TenzorX2026-FINAL
+cd KiranaLens-TenzorX2026-FINAL/backend
+npm install
+node server.js
+```
 
-> No setup needed. Opens instantly in any browser.
+Open **http://localhost:8080** → full app running instantly.
+
+> No API keys needed. Smart simulation handles everything out of the box.
 
 ---
 
@@ -61,8 +64,8 @@ KiranaLens turns a smartphone into a credit underwriting tool. Upload 3–5 phot
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/KiranaLens
-cd KiranaLens/backend
+git clone https://github.com/AshThe25/KiranaLens-TenzorX2026-FINAL
+cd KiranaLens-TenzorX2026-FINAL/backend
 npm install
 ```
 
