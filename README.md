@@ -1,4 +1,4 @@
-# KiranaLens 🔍
+# KiranaLens
 ### Remote Cash Flow Underwriting for Kirana Stores using Vision & Geo Intelligence
 
 > **TenzorX 2026 · Poonawalla Fincorp · Problem Statement 4C**
@@ -9,19 +9,19 @@ KiranaLens turns a smartphone into a credit underwriting tool. Upload 3–5 phot
 
 ---
 
-## 🚀 Live Demo
+## Live Demo
 
 | | Link |
 |---|---|
-| 🌐 **Landing Page** | https://kiranalens-tenzorx2026-final-production.up.railway.app |
-| 🔬 **Assessment Tool** | https://kiranalens-tenzorx2026-final-production.up.railway.app/assess.html |
-| 🩺 **API Health** | https://kiranalens-tenzorx2026-final-production.up.railway.app/api/health |
+| **Landing Page** | https://kiranalens-tenzorx2026-final-production.up.railway.app |
+| **Assessment Tool** | https://kiranalens-tenzorx2026-final-production.up.railway.app/assess.html |
+| **API Health** | https://kiranalens-tenzorx2026-final-production.up.railway.app/api/health |
 
 > No setup needed. Opens instantly in any browser. No API keys required.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────┐
@@ -38,7 +38,7 @@ KiranaLens turns a smartphone into a credit underwriting tool. Upload 3–5 phot
 │         │ │ Google Maps  │
 │ Google  │ │ API / Smart  │
 │ Vision  │ │ Simulation   │
-│ API /   │ └─────────────-┘
+│ API /   │ └──────────────┘
 │ Smart   │
 │ Simul.  │
 └──────┬──┘
@@ -56,7 +56,7 @@ KiranaLens turns a smartphone into a credit underwriting tool. Upload 3–5 phot
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 ### 1. Clone & Install
 
@@ -81,11 +81,11 @@ node server.js
 # or: npm start
 ```
 
-Open **http://localhost:5000** → full app running.
+Open **http://localhost:8080** → full app running.
 
 ---
 
-## 🧠 How It Works
+## How It Works
 
 ### Layer 1 — Vision Intelligence
 
@@ -138,7 +138,7 @@ Three cross-validation checks:
 
 ---
 
-## 📡 API Reference
+## API Reference
 
 ### `POST /api/assess`
 
@@ -146,10 +146,10 @@ Three cross-validation checks:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `images` | File[] | ✅ | 1–5 store photos (JPG/PNG/WEBP) |
-| `lat` | Number | ✅ | GPS latitude |
-| `lng` | Number | ✅ | GPS longitude |
-| `location_name` | String | ❌ | Human-readable location |
+| `images` | File[] | Yes | 1–5 store photos (JPG/PNG/WEBP) |
+| `lat` | Number | Yes | GPS latitude |
+| `lng` | Number | Yes | GPS longitude |
+| `location_name` | String | No | Human-readable location |
 
 **Response:**
 
@@ -193,7 +193,7 @@ Retrieve a previous assessment by ID.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -206,7 +206,7 @@ Retrieve a previous assessment by ID.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 KiranaLens/
@@ -225,7 +225,7 @@ KiranaLens/
 
 ---
 
-## 🏆 Built For
+## Built For
 
 **TenzorX 2026 National AI Hackathon**
 Poonawalla Fincorp · Problem Statement 4C
@@ -233,6 +233,6 @@ Poonawalla Fincorp · Problem Statement 4C
 
 ---
 
-## 👤 Team
+## Team
 
 Built by **Aishwarya Tripathi** · VIT Vellore
